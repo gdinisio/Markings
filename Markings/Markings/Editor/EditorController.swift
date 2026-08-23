@@ -128,6 +128,53 @@ final class EditorController: Equatable {
         perform { MarkdownTransforms.outdent(in: $0, selection: $1, tabWidth: self.indentWidth) }
     }
 
+    // MARK: - Moving and promoting
+
+    func moveLinesUp() {
+        perform { MarkdownTransforms.moveLines(by: -1, in: $0, selection: $1) }
+    }
+
+    func moveLinesDown() {
+        perform { MarkdownTransforms.moveLines(by: 1, in: $0, selection: $1) }
+    }
+
+    func raiseHeadingLevel() {
+        perform { MarkdownTransforms.changeHeadingLevel(by: -1, in: $0, selection: $1) }
+    }
+
+    func lowerHeadingLevel() {
+        perform { MarkdownTransforms.changeHeadingLevel(by: 1, in: $0, selection: $1) }
+    }
+
+    // MARK: - Copying
+
+    /// Copies the document as HTML source.
+    func copyAsHTML() {
+        guard let source = copySource() else { return }
+        write(MarkdownHTMLExporter.body(blocks: MarkdownParser.parse(source)))
+    }
+
+    /// Copies the document with the Markdown syntax removed, so it reads
+    /// properly when pasted into a message or a note.
+    func copyAsPlainText() {
+        guard let source = copySource() else { return }
+        write(MarkdownPlainText.render(MarkdownParser.parse(source)))
+    }
+
+    /// The selection if there is one, otherwise the whole document — the same
+    /// rule the standard Copy follows.
+    private func copySource() -> String? {
+        guard let textView else { return nil }
+        let range = textView.selectedRange()
+        guard range.length > 0 else { return textView.string }
+        return (textView.string as NSString).substring(with: range)
+    }
+
+    private func write(_ string: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(string, forType: .string)
+    }
+
     // MARK: - Insertions
 
     func insertCodeBlock() {

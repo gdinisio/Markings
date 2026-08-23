@@ -370,6 +370,76 @@ nonisolated enum MarkdownTransforms {
         }
     }
 
+    // MARK: - Moving and promoting lines
+
+    /// Moves the lines the selection touches up or down by one line.
+    ///
+    /// Returns `nil` at the ends of the document so the command is simply
+    /// unavailable rather than silently doing nothing to the undo stack.
+    static func moveLines(by offset: Int, in text: NSString, selection: NSRange) -> TextEdit? {
+        guard offset != 0 else { return nil }
+        let block = lineRange(in: text, for: selection)
+        let caretOffset = selection.location - block.location
+
+        if offset < 0 {
+            guard block.location > 0 else { return nil }
+            let previous = lineRange(in: text, for: NSRange(location: block.location - 1, length: 0))
+            let combined = NSRange(location: previous.location,
+                                   length: NSMaxRange(block) - previous.location)
+            let replacement = text.substring(with: block) + "\n" + text.substring(with: previous)
+            return TextEdit(range: combined,
+                            replacement: replacement,
+                            selection: NSRange(location: previous.location + caretOffset,
+                                               length: selection.length))
+        }
+
+        let separator = NSMaxRange(block)
+        guard separator < text.length, separator + 1 < text.length else { return nil }
+        let next = lineRange(in: text, for: NSRange(location: separator + 1, length: 0))
+        let combined = NSRange(location: block.location, length: NSMaxRange(next) - block.location)
+        let nextText = text.substring(with: next)
+        let replacement = nextText + "\n" + text.substring(with: block)
+        return TextEdit(range: combined,
+                        replacement: replacement,
+                        selection: NSRange(location: block.location + nextText.utf16.count + 1 + caretOffset,
+                                           length: selection.length))
+    }
+
+    /// Promotes or demotes headings on the selected lines.
+    ///
+    /// `delta` is negative to raise (Heading 2 becomes Heading 1). Raising body
+    /// text makes it a Heading 1; lowering past Heading 6 returns it to body.
+    /// List items and quotes are left alone — changing those is a different
+    /// decision, and one the Format menu already offers.
+    static func changeHeadingLevel(by delta: Int, in text: NSString, selection: NSRange) -> TextEdit? {
+        let edit = transformLines(in: text, selection: selection) { lines in
+            lines.map { line in
+                guard !line.isBlank else { return line }
+                var updated = line
+                switch line.kind {
+                case .heading(let level):
+                    let target = level + delta
+                    if target < 1 { return line }
+                    if target > 6 {
+                        updated.kind = .paragraph
+                    } else {
+                        updated.kind = .heading(level: target)
+                    }
+                case .paragraph:
+                    guard delta < 0 else { return line }
+                    updated.kind = .heading(level: 1)
+                    updated.task = nil
+                case .bullet, .ordered, .quote:
+                    return line
+                }
+                return updated
+            }
+        }
+        // Nothing to do at the ends of the scale; do not spend an undo step on it.
+        guard edit.replacement != text.substring(with: edit.range) else { return nil }
+        return edit
+    }
+
     // MARK: - Return key
 
     /// Continues lists, task lists and block quotes; ends them when the item is

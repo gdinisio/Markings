@@ -119,8 +119,28 @@ in Settings if it gets in the way:
 
 ### Export
 
-**File ▸ Export as HTML…** writes a single self-contained HTML file, styled to
-match the reading view, with light and dark support built in.
+**File ▸ Export as HTML…** (`⇧⌘E`) writes a single self-contained HTML file,
+styled to match the reading view, with light and dark support built in.
+
+**Edit ▸ Copy as HTML** puts the HTML source on the clipboard. **Copy as Plain
+Text** strips the syntax instead, keeping bullets, numbering, checkboxes and
+tab-separated table rows, so what you paste into a message or a spreadsheet
+reads properly. Both act on the selection if there is one, otherwise the whole
+document.
+
+---
+
+## Menu bar
+
+On macOS the menu bar — not the toolbar — is the complete index of what an app
+can do, and Markings treats it that way. Everything is grouped where you would
+look for it: **Format** for how text reads, **Insert** for things added to it,
+**Edit** for moving it around, **View** for how it is shown. Items disable
+rather than disappear when no document has focus, so the shape of the app stays
+the same whatever is in front of you.
+
+**Help ▸ Markdown Syntax** (`⇧⌘/`) opens a reference window listing every piece
+of syntax Markings understands alongside the shortcut that writes it.
 
 ---
 
@@ -132,16 +152,21 @@ match the reading view, with light and dark support built in.
 | --- | --- | --- | --- | --- |
 | Bold | `⌘B` | | Body | `⌥⌘0` |
 | Italic | `⌘I` | | Heading 1–6 | `⌥⌘1`–`⌥⌘6` |
-| Strikethrough | `⇧⌘X` | | Bulleted List | `⇧⌘7` |
-| Inline Code | `⌃⌘C` | | Numbered List | `⇧⌘8` |
-| Highlight | `⌃⌘H` | | Task List | `⇧⌘L` |
-| Link | `⌘K` | | Block Quote | `⌥⌘B` |
-| Image | `⌃⌘I` | | Mark Task as Done | `⇧⌘D` |
-| Code Block | `⌥⌘C` | | Increase Indent | `⌘]` |
-| Table | `⌃⌘T` | | Decrease Indent | `⌘[` |
-| Divider | `⇧⌘-` | | | |
+| Strikethrough | `⇧⌘X` | | Raise Heading Level | `⌃⌘↑` |
+| Inline Code | `⌃⌘C` | | Lower Heading Level | `⌃⌘↓` |
+| Highlight | `⌃⌘H` | | Bulleted List | `⇧⌘7` |
+| Increase Indent | `⌘]` | | Numbered List | `⇧⌘8` |
+| Decrease Indent | `⌘[` | | Task List | `⇧⌘L` |
+| | | | Block Quote | `⌥⌘B` |
+| | | | Mark Task as Done | `⇧⌘D` |
 
-### Find
+### Insert
+
+`⌘K` Link · `⌃⌘I` Image · `⌃⌘T` Table · `⌥⌘C` Code Block · `⇧⌘-` Divider
+
+### Edit
+
+`⌥⌘↑` / `⌥⌘↓` Move Line Up/Down · Copy as HTML · Copy as Plain Text
 
 `⌘F` Find · `⌥⌘F` Find and Replace · `⌘G` Find Next · `⇧⌘G` Find Previous ·
 `⌘E` Use Selection for Find
@@ -151,6 +176,10 @@ match the reading view, with light and dark support built in.
 `⌘1` Editor · `⌘2` Split · `⌘3` Preview · `⌃⌘S` Show/Hide Sidebar ·
 `⌥⌘I` Show/Hide Document Info · `⇧⌘F` Focus Mode · `⌘+` / `⌘-` Text Size ·
 `⌘0` Actual Size
+
+### File and Help
+
+`⇧⌘E` Export as HTML · `⇧⌘/` Markdown Syntax
 
 ---
 

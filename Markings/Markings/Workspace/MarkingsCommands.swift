@@ -9,11 +9,16 @@ import SwiftUI
 
 /// The menu bar.
 ///
-/// On macOS the menu bar — not the toolbar — is where the full set of commands
-/// lives, where keyboard shortcuts are discovered, and where anything a user
-/// cannot find in the interface is still reachable. Every formatting action in
-/// Markings appears here, whether or not it also has a toolbar button.
+/// On macOS the menu bar — not the toolbar — is the complete index of what an
+/// app can do. Everything Markings can do to a document is here, grouped where
+/// a person would look for it: Format for how text reads, Insert for things
+/// added to it, Edit for moving it around, View for how it is shown.
+///
+/// Items are disabled rather than hidden when no document has focus, so the
+/// shape of the app stays the same whatever is in front.
 struct MarkingsCommands: Commands {
+
+    @Environment(\.openWindow) private var openWindow
 
     @FocusedValue(\.editorController) private var controller: EditorController?
     @FocusedBinding(\.workspaceMode) private var mode: WorkspaceMode?
@@ -21,9 +26,10 @@ struct MarkingsCommands: Commands {
     @FocusedBinding(\.htmlExportRequested) private var exportRequested: Bool?
 
     @AppStorage(SettingsKey.focusMode) private var focusMode = SettingsDefault.focusMode
+    @AppStorage(SettingsKey.syncScrolling) private var syncScrolling = SettingsDefault.syncScrolling
+    @AppStorage(SettingsKey.showStatusBar) private var showStatusBar = SettingsDefault.showStatusBar
     @AppStorage(SettingsKey.editorFontSize) private var editorFontSize = SettingsDefault.editorFontSize
     @AppStorage(SettingsKey.previewFontSize) private var previewFontSize = SettingsDefault.previewFontSize
-    @AppStorage(SettingsKey.showStatusBar) private var showStatusBar = SettingsDefault.showStatusBar
 
     private var hasEditor: Bool { controller != nil }
 
@@ -31,10 +37,18 @@ struct MarkingsCommands: Commands {
         CommandGroup(after: .saveItem) {
             Divider()
             Button("Export as HTML…") { exportRequested = true }
+                .keyboardShortcut("e", modifiers: [.command, .shift])
                 .disabled(exportRequested == nil)
         }
 
+        CommandGroup(after: .pasteboard) {
+            Divider()
+            copyAsCommands
+        }
+
         CommandGroup(after: .textEditing) {
+            Divider()
+            lineCommands
             Divider()
             findMenu
         }
@@ -42,25 +56,51 @@ struct MarkingsCommands: Commands {
         CommandMenu("Format") {
             inlineCommands
             Divider()
-            paragraphCommands
+            headingCommands
             Divider()
             listCommands
-            Divider()
-            insertCommands
             Divider()
             indentCommands
         }
 
+        CommandMenu("Insert") {
+            insertCommands
+        }
+
         CommandGroup(after: .toolbar) {
+            Divider()
             viewModeCommands
             Divider()
             layoutCommands
             Divider()
             textSizeCommands
         }
+
+        CommandGroup(replacing: .help) {
+            Button("Markdown Syntax") { openWindow(id: WindowID.syntaxReference) }
+                .keyboardShortcut("/", modifiers: [.command, .shift])
+        }
     }
 
-    // MARK: - Edit ▸ Find
+    // MARK: - Edit
+
+    private var copyAsCommands: some View {
+        Group {
+            Button("Copy as HTML") { controller?.copyAsHTML() }
+            Button("Copy as Plain Text") { controller?.copyAsPlainText() }
+        }
+        .disabled(!hasEditor)
+    }
+
+    private var lineCommands: some View {
+        Group {
+            Button("Move Line Up") { controller?.moveLinesUp() }
+                .keyboardShortcut(.upArrow, modifiers: [.command, .option])
+            Button("Move Line Down") { controller?.moveLinesDown() }
+                .keyboardShortcut(.downArrow, modifiers: [.command, .option])
+        }
+        .disabled(!hasEditor)
+    }
 
     private var findMenu: some View {
         Menu("Find") {
@@ -93,16 +133,11 @@ struct MarkingsCommands: Commands {
                 .keyboardShortcut("c", modifiers: [.command, .control])
             Button("Highlight") { controller?.toggleHighlight() }
                 .keyboardShortcut("h", modifiers: [.command, .control])
-            Divider()
-            Button("Link…") { controller?.insertLink() }
-                .keyboardShortcut("k")
-            Button("Image…") { controller?.insertImage() }
-                .keyboardShortcut("i", modifiers: [.command, .control])
         }
         .disabled(!hasEditor)
     }
 
-    private var paragraphCommands: some View {
+    private var headingCommands: some View {
         Group {
             Button("Body") { controller?.setBody() }
                 .keyboardShortcut("0", modifiers: [.command, .option])
@@ -112,6 +147,10 @@ struct MarkingsCommands: Commands {
                         .keyboardShortcut(KeyEquivalent(Character("\(level)")), modifiers: [.command, .option])
                 }
             }
+            Button("Raise Heading Level") { controller?.raiseHeadingLevel() }
+                .keyboardShortcut(.upArrow, modifiers: [.command, .control])
+            Button("Lower Heading Level") { controller?.lowerHeadingLevel() }
+                .keyboardShortcut(.downArrow, modifiers: [.command, .control])
         }
         .disabled(!hasEditor)
     }
@@ -133,24 +172,31 @@ struct MarkingsCommands: Commands {
         .disabled(!hasEditor)
     }
 
-    private var insertCommands: some View {
-        Group {
-            Button("Code Block") { controller?.insertCodeBlock() }
-                .keyboardShortcut("c", modifiers: [.command, .option])
-            Button("Table") { controller?.insertTable() }
-                .keyboardShortcut("t", modifiers: [.command, .control])
-            Button("Divider") { controller?.insertThematicBreak() }
-                .keyboardShortcut("-", modifiers: [.command, .shift])
-        }
-        .disabled(!hasEditor)
-    }
-
     private var indentCommands: some View {
         Group {
             Button("Increase Indent") { controller?.indent() }
                 .keyboardShortcut("]")
             Button("Decrease Indent") { controller?.outdent() }
                 .keyboardShortcut("[")
+        }
+        .disabled(!hasEditor)
+    }
+
+    // MARK: - Insert
+
+    private var insertCommands: some View {
+        Group {
+            Button("Link…") { controller?.insertLink() }
+                .keyboardShortcut("k")
+            Button("Image…") { controller?.insertImage() }
+                .keyboardShortcut("i", modifiers: [.command, .control])
+            Divider()
+            Button("Table") { controller?.insertTable() }
+                .keyboardShortcut("t", modifiers: [.command, .control])
+            Button("Code Block") { controller?.insertCodeBlock() }
+                .keyboardShortcut("c", modifiers: [.command, .option])
+            Button("Divider") { controller?.insertThematicBreak() }
+                .keyboardShortcut("-", modifiers: [.command, .shift])
         }
         .disabled(!hasEditor)
     }
@@ -179,7 +225,7 @@ struct MarkingsCommands: Commands {
 
             Toggle("Focus Mode", isOn: $focusMode)
                 .keyboardShortcut("f", modifiers: [.command, .shift])
-
+            Toggle("Follow the Caret in Split View", isOn: $syncScrolling)
             Toggle("Show Word Count", isOn: $showStatusBar)
         }
     }

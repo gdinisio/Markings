@@ -8,6 +8,10 @@
 import Foundation
 import SwiftUI
 
+nonisolated enum WindowID {
+    static let syntaxReference = "markdown-syntax"
+}
+
 @main
 struct MarkingsApp: App {
 
@@ -17,15 +21,21 @@ struct MarkingsApp: App {
         }
         .defaultSize(width: 1180, height: 800)
         .commands {
-            // The system’s own Show/Hide Sidebar item, wired to the split view,
+            // The system's own Show/Hide Sidebar item, wired to the split view,
             // rather than a lookalike of it.
             SidebarCommands()
             // Show/Hide Toolbar and Customize Toolbar…, which is what puts the
             // toolbar customisation sheet in the View menu as well as on the
-            // toolbar’s own contextual menu.
+            // toolbar's own contextual menu.
             ToolbarCommands()
             MarkingsCommands()
         }
+
+        Window("Markdown Syntax", id: WindowID.syntaxReference) {
+            MarkdownSyntaxReference()
+        }
+        .defaultSize(width: 560, height: 620)
+        .windowResizability(.contentMinSize)
 
         Settings {
             SettingsView()

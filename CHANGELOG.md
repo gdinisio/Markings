@@ -5,6 +5,40 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.0 — A menu bar worth using
+
+**Reorganised**
+
+- Commands are grouped where a person would look for them: Format for how text
+  reads, a new top-level **Insert** menu for things added to it (the shape Pages
+  uses), Edit for moving text around, View for how it is shown.
+- Headings moved into a submenu so the Format menu stays scannable.
+
+**New editing commands**
+
+- **Move Line Up / Down** (`⌥⌘↑` / `⌥⌘↓`) — moves the lines the selection touches,
+  and is unavailable at the ends of the document rather than quietly spending an
+  undo step.
+- **Raise / Lower Heading Level** (`⌃⌘↑` / `⌃⌘↓`) — Heading 2 becomes Heading 1 and
+  back. Raising body text makes it a Heading 1; lowering past Heading 6 returns
+  it to body. List items and quotes are left alone.
+- **Copy as HTML** and **Copy as Plain Text**. Plain text keeps the structure
+  plain text can carry — bullets, numbering, checkboxes, indentation, and
+  tab-separated table rows that paste straight into a spreadsheet. Both act on
+  the selection if there is one, otherwise the whole document.
+- **Export as HTML** gained `⇧⌘E`.
+- **Follow the Caret in Split View** is now switchable from the View menu, not
+  only from Settings.
+
+**Help**
+
+- The stock Help item would only ever have produced an error, since Markings
+  ships no help book. It is replaced by **Markdown Syntax** (`⇧⌘/`), a reference
+  window listing every construct Markings understands, how to write it, and the
+  shortcut that writes it for you.
+
+---
+
 ## v0.9 — Customisable toolbar
 
 - The toolbar is now customisable the way Finder's is, using the system

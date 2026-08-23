@@ -64,13 +64,13 @@ final class MarkdownSyntaxHighlighter {
                 } else {
                     openFence = (fence.marker, fence.count)
                 }
-                self.styleCodeLine(storage, range: enclosingRange, lineRange: lineRange, isFence: true)
+                self.styleCodeLine(storage, range: enclosingRange, isFence: true)
                 codeRanges.append(enclosingRange)
                 return
             }
 
             if openFence != nil {
-                self.styleCodeLine(storage, range: enclosingRange, lineRange: lineRange, isFence: false)
+                self.styleCodeLine(storage, range: enclosingRange, isFence: false)
                 codeRanges.append(enclosingRange)
                 return
             }
@@ -91,7 +91,7 @@ final class MarkdownSyntaxHighlighter {
 
     // MARK: - Block level
 
-    private func styleCodeLine(_ storage: NSTextStorage, range: NSRange, lineRange: NSRange, isFence: Bool) {
+    private func styleCodeLine(_ storage: NSTextStorage, range: NSRange, isFence: Bool) {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineHeightMultiple = CGFloat(configuration.lineHeight)
         storage.addAttributes([
@@ -178,15 +178,11 @@ final class MarkdownSyntaxHighlighter {
         let full = NSRange(location: 0, length: text.length)
         var claimed = protectedRanges
 
-        func isClaimed(_ range: NSRange) -> Bool {
-            claimed.contains { NSIntersectionRange($0, range).length > 0 }
-        }
-
         // Code spans win over everything, so they are claimed first.
         for pattern in [Self.inlineCodeDouble, Self.inlineCodeSingle] {
             guard let pattern else { continue }
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 storage.addAttributes([
                     .font: self.fonts.monospaced,
                     .foregroundColor: EditorTheme.codeText,
@@ -198,7 +194,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.link {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: match.range)
                 let label = match.range(at: 2)
                 if label.location != NSNotFound, label.length > 0 {
@@ -214,7 +210,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.autolink {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: match.range)
                 let target = match.range(at: 1)
                 if target.location != NSNotFound {
@@ -226,7 +222,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.bold {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
                 self.applyBold(storage, range: match.range(at: 2))
             }
@@ -234,7 +230,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.italic {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
                 self.applyItalic(storage, range: match.range(at: 2))
             }
@@ -242,7 +238,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.strikethrough {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
                 let content = match.range(at: 2)
                 if content.location != NSNotFound {
@@ -256,7 +252,7 @@ final class MarkdownSyntaxHighlighter {
 
         if let pattern = Self.highlight {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
-                guard let match, !isClaimed(match.range) else { return }
+                guard let match, !self.intersects(match.range, claimed) else { return }
                 self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
                 let content = match.range(at: 2)
                 if content.location != NSNotFound {
@@ -264,6 +260,10 @@ final class MarkdownSyntaxHighlighter {
                 }
             }
         }
+    }
+
+    private func intersects(_ range: NSRange, _ ranges: [NSRange]) -> Bool {
+        ranges.contains { NSIntersectionRange($0, range).length > 0 }
     }
 
     /// Dims the opening and closing delimiters of an inline span.

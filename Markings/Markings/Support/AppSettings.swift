@@ -78,9 +78,9 @@ nonisolated enum WorkspaceMode: String, CaseIterable, Identifiable {
 
     var symbolName: String {
         switch self {
-        case .edit: return "square"
+        case .edit: return "pencil"
         case .split: return "rectangle.split.2x1"
-        case .preview: return "book"
+        case .preview: return "eye"
         }
     }
 

@@ -9,9 +9,21 @@ import SwiftUI
 
 @main
 struct MarkingsApp: App {
+
     var body: some Scene {
         DocumentGroup(newDocument: MarkingsDocument()) { file in
             ContentView(document: file.$document)
+        }
+        .defaultSize(width: 1180, height: 800)
+        .commands {
+            // The system’s own Show/Hide Sidebar item, wired to the split view,
+            // rather than a lookalike of it.
+            SidebarCommands()
+            MarkingsCommands()
+        }
+
+        Settings {
+            SettingsView()
         }
     }
 }

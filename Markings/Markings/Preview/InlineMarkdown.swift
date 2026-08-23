@@ -77,7 +77,7 @@ enum InlineMarkdown {
 
 /// Type sizes and spacing for the reading view, derived from one base size so
 /// the whole hierarchy scales together.
-struct PreviewTypography: Equatable {
+nonisolated struct PreviewTypography: Equatable {
     var family: MarkingsFontFamily
     var baseSize: CGFloat
 

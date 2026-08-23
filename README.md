@@ -86,8 +86,12 @@ and the icon/text display options come from macOS itself.
 Every control is its own item rather than a group sharing one slot, so you can
 take exactly what you want. Shown by default:
 
-> paragraph style · **B** · *I* · bulleted list · task list · Insert ·
+> paragraph style · **B** · *I* · link · bulleted list · task list · Insert ·
 > view mode · document info
+
+Every item is a button or a menu carrying a label, which is what gives it a name
+in the customisation sheet and a working entry in the overflow menu if the
+window is ever genuinely too narrow.
 
 Waiting in the customisation sheet: strikethrough, inline code, highlight,
 numbered list, block quote, increase/decrease indent, link, image, table, code

@@ -8,11 +8,13 @@ import SwiftUI
 
 /// Stable identities for every toolbar item.
 ///
-/// macOS persists a customised toolbar against these strings, so they are
-/// written out once here and never derived: changing one silently resets that
-/// item for everyone who had already placed it.
+/// macOS persists a customised toolbar against these strings. The toolbar
+/// identity carries a version because the previous arrangement was unusable —
+/// bumping it discards any saved configuration and starts everyone clean.
+/// Individual item identities must not change for that reason: renaming one
+/// silently drops it for anyone who had already placed it.
 nonisolated enum ToolbarID {
-    static let toolbar = "markings.document.toolbar"
+    static let toolbar = "markings.document.toolbar.v2"
 
     static let paragraphStyle = "paragraphStyle"
     static let bold = "bold"
@@ -43,15 +45,19 @@ nonisolated enum ToolbarID {
 
 /// The document window's toolbar.
 ///
-/// Every control is its own identified item, which is what makes the toolbar
-/// customisable the way Finder's is: right-click it, or choose View ▸ Customize
-/// Toolbar…, and items can be dragged in, out and reordered. Spaces and the
-/// icon/text display options come from macOS itself. Nothing here reimplements
-/// any of that — it is the system toolbar, configured.
+/// Two rules keep it working rather than collapsing into an overflow chevron:
 ///
-/// The default arrangement is deliberately short. Everything else is one drag
-/// away for people who want it, and reachable from the menu bar for everyone
-/// else.
+/// 1. It is attached to the **detail** view, not to the `NavigationSplitView`.
+///    Items declared on the split view are assigned to its leading section,
+///    which is only as wide as the sidebar — so every item overflows.
+/// 2. Every item is a `Button` or a `Menu` carrying a `Label`. Those get an
+///    automatic menu form representation, so when the window *is* too narrow
+///    the overflow menu still lists them. A bare `Picker` has none, and a
+///    fixed-width control makes overflow arrive far sooner than it needs to.
+///
+/// Each command is its own identified item, which is what makes the toolbar
+/// customisable the way Finder's is: right-click it, or choose
+/// View ▸ Customize Toolbar…, and items drag in, out and reorder.
 struct WorkspaceToolbar: CustomizableToolbarContent {
 
     var controller: EditorController
@@ -83,19 +89,23 @@ private struct TextStyleToolbarItems: CustomizableToolbarContent {
 
     var body: some CustomizableToolbarContent {
         ToolbarItem(id: ToolbarID.paragraphStyle, showsByDefault: true) {
-            Picker("Paragraph Style", selection: styleSelection) {
-                Text("Body").tag(BlockStyle.body)
-                ForEach(1...6, id: \.self) { level in
-                    Text("Heading \(level)").tag(BlockStyle.heading(level))
+            Menu {
+                // An inline Picker inside a menu is how macOS shows a set of
+                // mutually exclusive choices with a checkmark on the current one.
+                Picker("Paragraph Style", selection: styleSelection) {
+                    Text("Body").tag(BlockStyle.body)
+                    ForEach(1...6, id: \.self) { level in
+                        Text("Heading \(level)").tag(BlockStyle.heading(level))
+                    }
+                    Text("Bulleted List").tag(BlockStyle.bulletList)
+                    Text("Numbered List").tag(BlockStyle.numberedList)
+                    Text("Task List").tag(BlockStyle.taskList)
+                    Text("Block Quote").tag(BlockStyle.quote)
                 }
-                Text("Bulleted List").tag(BlockStyle.bulletList)
-                Text("Numbered List").tag(BlockStyle.numberedList)
-                Text("Task List").tag(BlockStyle.taskList)
-                Text("Block Quote").tag(BlockStyle.quote)
+                .pickerStyle(.inline)
+            } label: {
+                Label("Paragraph Style", systemImage: "textformat")
             }
-            .pickerStyle(.menu)
-            .labelsHidden()
-            .frame(width: 150)
             .disabled(!isEditing)
             .help("Paragraph style of the current line")
         }
@@ -191,11 +201,14 @@ private struct InsertToolbarItems: CustomizableToolbarContent {
     var isEditing: Bool
 
     var body: some CustomizableToolbarContent {
+        ToolbarItem(id: ToolbarID.link, showsByDefault: true) {
+            ToolbarCommandButton("Link", "link", enabled: isEditing) { controller.insertLink() }
+        }
+
         // One compact menu by default; the same commands are also available as
         // individual items for anyone who would rather have them one click away.
         ToolbarItem(id: ToolbarID.insert, showsByDefault: true) {
             Menu {
-                Button { controller.insertLink() } label: { Label("Link", systemImage: "link") }
                 Button { controller.insertImage() } label: { Label("Image", systemImage: "photo") }
                 Divider()
                 Button { controller.insertTable() } label: { Label("Table", systemImage: "tablecells") }
@@ -205,11 +218,7 @@ private struct InsertToolbarItems: CustomizableToolbarContent {
                 Label("Insert", systemImage: "plus")
             }
             .disabled(!isEditing)
-            .help("Insert a link, image, table, code block or divider")
-        }
-
-        ToolbarItem(id: ToolbarID.link, showsByDefault: false) {
-            ToolbarCommandButton("Link", "link", enabled: isEditing) { controller.insertLink() }
+            .help("Insert an image, table, code block or divider")
         }
 
         ToolbarItem(id: ToolbarID.image, showsByDefault: false) {
@@ -240,20 +249,23 @@ private struct DocumentToolbarItems: CustomizableToolbarContent {
     @Binding var exportRequested: Bool
 
     var body: some CustomizableToolbarContent {
-        ToolbarItem(id: ToolbarID.viewMode, placement: .primaryAction, showsByDefault: true) {
-            Picker("View", selection: $mode) {
-                ForEach(WorkspaceMode.allCases) { item in
-                    Label(item.title, systemImage: item.symbolName)
-                        .labelStyle(.iconOnly)
-                        .tag(item)
+        ToolbarItem(id: ToolbarID.viewMode, showsByDefault: true) {
+            Menu {
+                Picker("View", selection: $mode) {
+                    ForEach(WorkspaceMode.allCases) { item in
+                        Label(item.title, systemImage: item.symbolName).tag(item)
+                    }
                 }
+                .pickerStyle(.inline)
+            } label: {
+                // The icon reports which view you are in, not just that a
+                // choice exists.
+                Label("View", systemImage: mode.symbolName)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
             .help("Show the source, the reading view, or both")
         }
 
-        ToolbarItem(id: ToolbarID.inspector, placement: .primaryAction, showsByDefault: true) {
+        ToolbarItem(id: ToolbarID.inspector, showsByDefault: true) {
             Button {
                 showInspector.toggle()
             } label: {
@@ -263,10 +275,11 @@ private struct DocumentToolbarItems: CustomizableToolbarContent {
         }
 
         ToolbarItem(id: ToolbarID.focusMode, showsByDefault: false) {
-            Toggle(isOn: $focusMode) {
-                Label("Focus Mode", systemImage: "scope")
+            Button {
+                focusMode.toggle()
+            } label: {
+                Label("Focus Mode", systemImage: focusMode ? "scope" : "circle.dashed")
             }
-            .toggleStyle(.button)
             .help("Dim everything except the paragraph you are writing")
         }
 
@@ -285,10 +298,9 @@ private struct DocumentToolbarItems: CustomizableToolbarContent {
 
 /// One toolbar button.
 ///
-/// Kept as its own small view so every command is an individually identified
-/// toolbar item rather than a group of buttons sharing one slot — a group
-/// cannot be taken apart in Customize Toolbar, and takes up the same room
-/// whether or not you use all of it.
+/// A `Label` rather than a bare `Image`, so the item has a name in the
+/// customisation sheet and a usable entry in the overflow menu when the window
+/// is genuinely too narrow.
 private struct ToolbarCommandButton: View {
 
     private let title: String

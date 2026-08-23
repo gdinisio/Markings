@@ -55,15 +55,19 @@ struct ContentView: View {
                 reveal(line: item.line)
             }
         } detail: {
+            // The toolbar belongs to the detail view, not to the split view.
+            // Items declared on the split view are assigned to its leading
+            // section — as wide as the sidebar — and every one of them
+            // overflows into a chevron.
             detail
-        }
-        .toolbar(id: ToolbarID.toolbar) {
-            WorkspaceToolbar(controller: controller,
-                             mode: $mode,
-                             showInspector: $showInspector,
-                             focusMode: $focusMode,
-                             exportRequested: $exportRequested,
-                             isEditing: mode != .preview)
+                .toolbar(id: ToolbarID.toolbar) {
+                    WorkspaceToolbar(controller: controller,
+                                     mode: $mode,
+                                     showInspector: $showInspector,
+                                     focusMode: $focusMode,
+                                     exportRequested: $exportRequested,
+                                     isEditing: mode != .preview)
+                }
         }
         .inspector(isPresented: $showInspector) {
             DocumentInspector(statistics: statistics,

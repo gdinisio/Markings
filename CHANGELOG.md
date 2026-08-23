@@ -5,6 +5,30 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.1 — Fixed a toolbar that had collapsed into an overflow chevron
+
+The toolbar was showing nothing but a `»` at its trailing edge, and latterly
+that chevron opened nothing at all. Three causes, all now fixed:
+
+- **The toolbar was attached to the `NavigationSplitView`.** Items declared
+  there are assigned to the split view's *leading* toolbar section — which is
+  only as wide as the sidebar, around 200 points. Every item overflowed. The
+  toolbar now belongs to the detail view, where the width is.
+- **A fixed-width `Picker` and a segmented `Picker` were direct toolbar items.**
+  A bare `Picker` has no menu form representation, so it cannot appear in the
+  overflow menu — which is why the chevron eventually opened onto nothing. Both
+  are now compact `Menu`s carrying a `Label`, with an inline `Picker` inside
+  where a checkmarked list of choices belongs. The view-mode item's icon now
+  reports which view you are in rather than only that a choice exists.
+- **The saved toolbar configuration was unrecoverable.** The toolbar identity
+  carries a version now, so bumping it discards the broken arrangement and
+  starts clean.
+
+Also: Link is a default toolbar item, since it is one of the most used commands
+and was previously buried in the Insert menu.
+
+---
+
 ## v1.0 — A menu bar worth using
 
 **Reorganised**

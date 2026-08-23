@@ -57,10 +57,12 @@ struct ContentView: View {
         } detail: {
             detail
         }
-        .toolbar {
+        .toolbar(id: ToolbarID.toolbar) {
             WorkspaceToolbar(controller: controller,
                              mode: $mode,
                              showInspector: $showInspector,
+                             focusMode: $focusMode,
+                             exportRequested: $exportRequested,
                              isEditing: mode != .preview)
         }
         .inspector(isPresented: $showInspector) {

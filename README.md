@@ -76,6 +76,26 @@ Three modes, switched from the toolbar or with `⌘1` / `⌘2` / `⌘3`:
 | **Split** | Source and reading view side by side, with the reading side following the caret |
 | **Preview** | The reading view on its own |
 
+### The toolbar
+
+The toolbar is customisable exactly the way Finder's is, because it *is* that
+mechanism: right-click it, or choose **View ▸ Customize Toolbar…**, and every
+command can be dragged in, dragged out and reordered. Spaces, flexible spaces
+and the icon/text display options come from macOS itself.
+
+Every control is its own item rather than a group sharing one slot, so you can
+take exactly what you want. Shown by default:
+
+> paragraph style · **B** · *I* · bulleted list · task list · Insert ·
+> view mode · document info
+
+Waiting in the customisation sheet: strikethrough, inline code, highlight,
+numbered list, block quote, increase/decrease indent, link, image, table, code
+block, divider, Focus Mode and Export as HTML.
+
+Formatting controls dim in Preview rather than disappearing, so what is
+unavailable stays visible.
+
 ### Smart editing
 
 These behave the way they do in Notes and Mail, and each one can be switched off

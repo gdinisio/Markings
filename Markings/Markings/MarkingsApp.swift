@@ -20,6 +20,10 @@ struct MarkingsApp: App {
             // The system’s own Show/Hide Sidebar item, wired to the split view,
             // rather than a lookalike of it.
             SidebarCommands()
+            // Show/Hide Toolbar and Customize Toolbar…, which is what puts the
+            // toolbar customisation sheet in the View menu as well as on the
+            // toolbar’s own contextual menu.
+            ToolbarCommands()
             MarkingsCommands()
         }
 

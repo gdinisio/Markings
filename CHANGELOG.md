@@ -5,6 +5,24 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v0.9 — Customisable toolbar
+
+- The toolbar is now customisable the way Finder's is, using the system
+  mechanism rather than an imitation of it: `.toolbar(id:)` with a stable
+  identity per item, so right-clicking the toolbar or choosing
+  **View ▸ Customize Toolbar…** opens the standard sheet. Items drag in, out and
+  reorder; spaces and the icon/text display options come from macOS.
+- Every command is its own identified item instead of four buttons sharing one
+  expanding slot. A group cannot be taken apart in the customisation sheet, and
+  it occupies the same room whether or not you use all of it.
+- The default arrangement is deliberately short — paragraph style, bold, italic,
+  bulleted list, task list, Insert, view mode, document info — with thirteen
+  more items available to drag in.
+- Added `ToolbarCommands()` so Show/Hide Toolbar and Customize Toolbar… appear
+  in the View menu as well as on the toolbar's contextual menu.
+
+---
+
 ## v0.8 — First-build fixes
 
 - `CGSize` has `Int`, `Double` and `CGFloat` initialiser overloads, so a leading

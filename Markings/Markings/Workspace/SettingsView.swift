@@ -3,6 +3,7 @@
 //  Markings
 //
 
+import Foundation
 import SwiftUI
 
 /// Settings, in the shape macOS expects: a tabbed window of grouped forms,

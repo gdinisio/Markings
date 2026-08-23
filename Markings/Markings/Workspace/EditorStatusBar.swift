@@ -3,6 +3,7 @@
 //  Markings
 //
 
+import Foundation
 import SwiftUI
 
 /// A quiet line along the bottom: how much you have written on the left, where

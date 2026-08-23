@@ -3,6 +3,7 @@
 //  Markings
 //
 
+import Foundation
 import SwiftUI
 
 /// The document window's toolbar: the formatting people reach for constantly,

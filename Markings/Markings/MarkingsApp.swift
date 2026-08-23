@@ -5,6 +5,7 @@
 //  Created by Giovanni Di Nisio on 23/08/2026.
 //
 
+import Foundation
 import SwiftUI
 
 @main

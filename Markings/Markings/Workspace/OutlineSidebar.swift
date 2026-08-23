@@ -3,6 +3,7 @@
 //  Markings
 //
 
+import Foundation
 import SwiftUI
 
 /// The document's headings, in order, as a way to see its shape and move

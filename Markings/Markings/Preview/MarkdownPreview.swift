@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Foundation
 import SwiftUI
 
 /// The reading view: the document as it is meant to be read.

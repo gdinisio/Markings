@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Foundation
 import SwiftUI
 
 /// A read-out of what is in the document: length, structure and progress.

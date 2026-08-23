@@ -5,6 +5,18 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v0.7 — Explicit module imports and reliable editor sizing
+
+- The target enables `MEMBER_IMPORT_VISIBILITY`, so a module must be imported
+  directly for its members to be visible. Every file now imports what it
+  actually uses rather than relying on SwiftUI to bring Foundation along.
+- The source editor sizes its text view to the clip view explicitly when the
+  window resizes, rather than trusting autoresizing to have started from a
+  matching width — not guaranteed for a view created at zero size inside an
+  `NSViewRepresentable`.
+
+---
+
 ## v0.6 — Documentation
 
 - Added `README.md`: what the app does, how to build it, how to use it, the full

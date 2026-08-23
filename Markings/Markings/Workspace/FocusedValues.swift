@@ -3,6 +3,7 @@
 //  Markings
 //
 
+import Foundation
 import SwiftUI
 
 /// The editor of the frontmost document, so menu commands act on the window

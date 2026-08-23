@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Foundation
 import SwiftUI
 
 /// `NSTextView` with the handful of behaviours a Markdown editor needs that the
@@ -197,6 +198,14 @@ struct SourceEditor: NSViewRepresentable {
         }
 
         @objc private func frameDidChange(_ notification: Notification) {
+            // Match the text view to the clip view explicitly rather than
+            // trusting autoresizing to have started from the same width.
+            if let textView, let scrollView {
+                let width = scrollView.contentSize.width
+                if width > 0, abs(textView.frame.width - width) > 0.5 {
+                    textView.setFrameSize(CGSize(width: width, height: textView.frame.height))
+                }
+            }
             updateInsets()
         }
 

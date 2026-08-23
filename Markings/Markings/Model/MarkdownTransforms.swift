@@ -340,11 +340,13 @@ nonisolated enum MarkdownTransforms {
         return shiftIndent(by: delta, in: text, selection: selection)
     }
 
-    static func outdent(in text: NSString, selection: NSRange, tabWidth: Int) -> TextEdit {
+    /// Returns `nil` when there is nothing to outdent, so the caller can leave
+    /// the document — and the undo stack — untouched.
+    static func outdent(in text: NSString, selection: NSRange, tabWidth: Int) -> TextEdit? {
         let range = lineRange(in: text, for: selection)
         let firstLine = MarkdownLine.parse(text.substring(with: text.lineRange(for: NSRange(location: range.location, length: 0))))
         let current = MarkdownLine.indentWidth(firstLine.indent)
-        guard current > 0 else { return TextEdit(range: selection, replacement: text.substring(with: selection), selection: selection) }
+        guard current > 0 else { return nil }
 
         var delta = -min(current, tabWidth)
         if let shallower = nearestLine(in: text, before: range.location, indentLessThan: current) {

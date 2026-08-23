@@ -322,19 +322,19 @@ struct MarkdownTableView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             Grid(alignment: .topLeading, horizontalSpacing: 0, verticalSpacing: 0) {
                 GridRow {
-                    ForEach(Array(table.header.enumerated()), id: \.offset) { pair in
-                        cell(pair.element, isHeader: true)
-                            .gridColumnAlignment(alignment(for: pair.offset))
+                    ForEach(table.header.indices, id: \.self) { column in
+                        cell(table.header[column], isHeader: true)
+                            .gridColumnAlignment(alignment(for: column))
                     }
                 }
                 Divider().gridCellUnsizedAxes(.horizontal)
-                ForEach(Array(table.rows.enumerated()), id: \.offset) { row in
+                ForEach(table.rows.indices, id: \.self) { row in
                     GridRow {
-                        ForEach(Array(row.element.enumerated()), id: \.offset) { pair in
-                            cell(pair.element, isHeader: false)
+                        ForEach(table.rows[row].indices, id: \.self) { column in
+                            cell(table.rows[row][column], isHeader: false)
                         }
                     }
-                    if row.offset < table.rows.count - 1 {
+                    if row < table.rows.count - 1 {
                         Divider().gridCellUnsizedAxes(.horizontal).opacity(0.5)
                     }
                 }

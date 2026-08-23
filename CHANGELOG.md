@@ -5,6 +5,18 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v0.8 — First-build fixes
+
+- `CGSize` has `Int`, `Double` and `CGFloat` initialiser overloads, so a leading
+  dot on either argument has nothing to resolve against. The text container and
+  the text view's `maxSize` now name `CGFloat` explicitly. This also cleared the
+  follow-on error on `autoresizingMask`: the failed `NSTextContainer` left
+  `textView` without a type, so `[.width]` had no context either.
+- The table view iterates indices rather than `Array(_:enumerated())` with a key
+  path into a tuple, which is both safer to compile and easier to read.
+
+---
+
 ## v0.7 — Explicit module imports and reliable editor sizing
 
 - The target enables `MEMBER_IMPORT_VISIBILITY`, so a module must be imported

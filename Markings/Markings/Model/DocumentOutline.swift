@@ -33,4 +33,22 @@ nonisolated enum DocumentOutline {
     static func item(containing line: Int, in items: [OutlineItem]) -> OutlineItem? {
         items.last { $0.line <= line }
     }
+
+    /// The chain of headings enclosing a line, outermost first.
+    ///
+    /// This is what the status bar shows: not just which section you are in,
+    /// but where that section sits in the document.
+    static func path(to line: Int, in items: [OutlineItem]) -> [OutlineItem] {
+        guard let current = item(containing: line, in: items) else { return [] }
+        var path = [current]
+        var level = current.level
+
+        for candidate in items.reversed() where candidate.line < current.line {
+            guard candidate.level < level else { continue }
+            path.insert(candidate, at: 0)
+            level = candidate.level
+            if level == 1 { break }
+        }
+        return path
+    }
 }

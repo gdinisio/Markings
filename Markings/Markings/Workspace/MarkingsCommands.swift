@@ -26,6 +26,7 @@ struct MarkingsCommands: Commands {
     @FocusedBinding(\.htmlExportRequested) private var exportRequested: Bool?
 
     @AppStorage(SettingsKey.focusMode) private var focusMode = SettingsDefault.focusMode
+    @AppStorage(SettingsKey.syntaxVisibility) private var syntaxVisibility = SettingsDefault.syntaxVisibility
     @AppStorage(SettingsKey.syncScrolling) private var syncScrolling = SettingsDefault.syncScrolling
     @AppStorage(SettingsKey.showStatusBar) private var showStatusBar = SettingsDefault.showStatusBar
     @AppStorage(SettingsKey.editorFontSize) private var editorFontSize = SettingsDefault.editorFontSize
@@ -228,6 +229,7 @@ struct MarkingsCommands: Commands {
             .keyboardShortcut("i", modifiers: [.command, .option])
             .disabled(inspectorVisible == nil)
 
+            Toggle("Always Show Markdown Syntax", isOn: alwaysShowSyntax)
             Toggle("Focus Mode", isOn: $focusMode)
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             Toggle("Follow the Caret in Split View", isOn: $syncScrolling)
@@ -246,6 +248,16 @@ struct MarkingsCommands: Commands {
                 previewFontSize = SettingsDefault.previewFontSize
             }
             .keyboardShortcut("0")
+        }
+    }
+
+    /// The setting is a choice of two, but in a menu it reads better as
+    /// something you switch on than as a list you pick from.
+    private var alwaysShowSyntax: Binding<Bool> {
+        Binding {
+            syntaxVisibility == .always
+        } set: { always in
+            syntaxVisibility = always ? .always : .currentLine
         }
     }
 

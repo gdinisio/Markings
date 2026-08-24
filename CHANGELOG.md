@@ -5,6 +5,45 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.4 — One canvas, not two panes
+
+The window was a source pane and a preview pane with a divider between them,
+which is the least interesting thing a Markdown editor can be. The writing
+surface is now the document.
+
+**Syntax that gets out of the way**
+
+- Markdown markers fade almost to nothing away from the caret, and return at
+  full strength on the line being edited. Headings, quotes, code, lists and
+  emphasis were already styled; hiding the punctuation is what turns styled
+  source into a document you can read.
+- Nothing reflows when a marker reveals itself, because it never stopped
+  occupying its space — the alternative, deleting the characters from the layout,
+  makes text jump under the caret.
+- **View ▸ Always Show Markdown Syntax** and a Settings picker turn it off, for
+  anyone who would rather see everything.
+
+**A page, not a rectangle**
+
+- Both panes now set the text column on its own lit page against a recessed
+  ground, using system colours so it follows the appearance. A column floating
+  in a full-bleed white rectangle gives no sense of where the writing area ends;
+  the chosen line width just looks like wasted room.
+
+**A status bar that says where you are**
+
+- The left side is now the heading path — `Introduction › Getting started` —
+  rather than nothing. Each crumb jumps to its heading. "Which section am I in"
+  is the question a writer is actually asking; the line number is on the right
+  where it belongs.
+
+**Naming**
+
+- The views are Write, Split and Read. They are named for what you are doing,
+  not for which half of the machinery is showing.
+
+---
+
 ## v1.3 — A welcome window
 
 Markings now opens on a welcome window instead of an empty untitled document or

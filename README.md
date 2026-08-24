@@ -66,15 +66,34 @@ no project file to edit when adding a source file.
 
 ## Using Markings
 
-### Views
+### One canvas
 
-Three modes, switched from the toolbar or with `⌘1` / `⌘2` / `⌘3`:
+The default view is not a source pane waiting for a preview beside it. It is a
+single page where the Markdown *is* the document: headings sized, quotes
+indented, code monospaced on its own ground, lists hanging — and the syntax
+characters themselves faded almost to nothing.
 
-| Mode | What it shows |
+Put the caret on a line and its markers come back at full strength, ready to
+edit. Move away and they recede again. Nothing shifts when they do, because they
+never stopped occupying their space.
+
+Switch it off with **View ▸ Always Show Markdown Syntax** if you would rather
+see everything all the time.
+
+Three views, from the toolbar or `⌘1` / `⌘2` / `⌘3`:
+
+| View | What it is |
 | --- | --- |
-| **Editor** | The Markdown source on its own |
-| **Split** | Source and reading view side by side, with the reading side following the caret |
-| **Preview** | The reading view on its own |
+| **Write** | One canvas, syntax revealed where you are working |
+| **Split** | Writing and reading side by side, the reading side following the caret |
+| **Read** | The finished document on its own |
+
+Each sits on a page: the text column on its own lit surface against a recessed
+ground, so the line width you chose reads as deliberate rather than as leftover
+room.
+
+Along the bottom, the heading path shows which section you are in — click any
+part of it to jump there — with the word count and reading time on the right.
 
 ### The welcome window
 

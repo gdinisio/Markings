@@ -67,6 +67,10 @@ enum EditorTheme {
     static var text: NSColor { .textColor }
     /// Syntax characters stay legible but recede behind the prose they mark up.
     static var syntax: NSColor { .tertiaryLabelColor }
+    /// Markers away from the caret: still there, all but invisible. They keep
+    /// their space, so revealing one never shifts the text around it.
+    static var fadedSyntax: NSColor { .tertiaryLabelColor.withAlphaComponent(0.28) }
+    static var fadedAccent: NSColor { .controlAccentColor.withAlphaComponent(0.35) }
     static var secondaryText: NSColor { .secondaryLabelColor }
     static var accent: NSColor { .controlAccentColor }
     static var link: NSColor { .linkColor }

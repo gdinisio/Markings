@@ -31,6 +31,24 @@ nonisolated enum MarkingsFontFamily: String, CaseIterable, Identifiable {
     }
 }
 
+/// When the Markdown syntax characters themselves are shown.
+nonisolated enum SyntaxVisibility: String, CaseIterable, Identifiable {
+    /// Markers fade away except on the line the caret is on, so the source
+    /// reads as the finished document while staying fully editable.
+    case currentLine
+    /// Every marker at full strength, all the time.
+    case always
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .currentLine: return "On the current line"
+        case .always: return "Always"
+        }
+    }
+}
+
 /// How wide the text column is allowed to grow.
 nonisolated enum MarkingsMeasure: String, CaseIterable, Identifiable {
     case narrow
@@ -70,9 +88,9 @@ nonisolated enum WorkspaceMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .edit: return "Edit"
+        case .edit: return "Write"
         case .split: return "Split"
-        case .preview: return "Preview"
+        case .preview: return "Read"
         }
     }
 
@@ -86,9 +104,9 @@ nonisolated enum WorkspaceMode: String, CaseIterable, Identifiable {
 
     var help: String {
         switch self {
-        case .edit: return "Show the Markdown source only"
-        case .split: return "Show the source and the reading view side by side"
-        case .preview: return "Show the reading view only"
+        case .edit: return "One canvas to write on"
+        case .split: return "Writing and reading side by side"
+        case .preview: return "The finished document on its own"
         }
     }
 }
@@ -101,6 +119,7 @@ nonisolated enum SettingsKey {
     static let lineHeight = "editor.lineHeight"
     static let measure = "editor.measure"
     static let focusMode = "editor.focusMode"
+    static let syntaxVisibility = "editor.syntaxVisibility"
     static let smartLists = "editor.smartLists"
     static let wrapSelection = "editor.wrapSelection"
     static let smartLinkPaste = "editor.smartLinkPaste"
@@ -119,6 +138,7 @@ nonisolated enum SettingsDefault {
     static let lineHeight = 1.45
     static let measure = MarkingsMeasure.comfortable
     static let focusMode = false
+    static let syntaxVisibility = SyntaxVisibility.currentLine
     static let smartLists = true
     static let wrapSelection = true
     static let smartLinkPaste = true
@@ -141,6 +161,7 @@ nonisolated struct EditorConfiguration: Equatable {
     var lineHeight: Double = SettingsDefault.lineHeight
     var measure: MarkingsMeasure = SettingsDefault.measure
     var focusMode: Bool = SettingsDefault.focusMode
+    var syntaxVisibility: SyntaxVisibility = SettingsDefault.syntaxVisibility
     var smartLists: Bool = SettingsDefault.smartLists
     var wrapSelection: Bool = SettingsDefault.wrapSelection
     var smartLinkPaste: Bool = SettingsDefault.smartLinkPaste

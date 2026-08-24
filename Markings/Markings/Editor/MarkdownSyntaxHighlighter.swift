@@ -41,11 +41,13 @@ final class MarkdownSyntaxHighlighter {
 
     // MARK: - Entry point
 
-    /// - Parameter focusLocation: the caret, used by Focus Mode to decide which
-    ///   paragraph stays lit. Pass `nil` to leave everything at full strength.
-    func highlight(_ storage: NSTextStorage, focusLocation: Int?) {
+    /// - Parameter caretLocation: where the caret is. Two things depend on it:
+    ///   which paragraph keeps its syntax markers visible, and — when Focus
+    ///   Mode is on — which paragraph stays lit while the rest dims.
+    func highlight(_ storage: NSTextStorage, caretLocation: Int?) {
         let text = storage.string as NSString
         let full = NSRange(location: 0, length: text.length)
+        let activeParagraph = activeParagraph(in: text, caretLocation: caretLocation)
 
         storage.beginEditing()
         storage.setAttributes(baseAttributes, range: full)
@@ -75,18 +77,45 @@ final class MarkdownSyntaxHighlighter {
                 return
             }
 
-            self.styleLine(storage, text: text, line: line, lineRange: lineRange, enclosingRange: enclosingRange)
+            self.styleLine(storage,
+                           text: text,
+                           line: line,
+                           lineRange: lineRange,
+                           enclosingRange: enclosingRange,
+                           isActive: self.intersectsActive(lineRange, activeParagraph))
         }
 
         if text.length <= Self.inlineHighlightLimit {
-            styleInlineSpans(storage, text: text, protectedRanges: codeRanges)
+            styleInlineSpans(storage, text: text, protectedRanges: codeRanges, activeParagraph: activeParagraph)
         }
 
-        if configuration.focusMode, let focusLocation {
-            dimOutsideParagraph(storage, text: text, focusLocation: focusLocation)
+        if configuration.focusMode, let caretLocation {
+            dimOutsideParagraph(storage, text: text, focusLocation: caretLocation)
         }
 
         storage.endEditing()
+    }
+
+    /// The paragraph whose markers stay at full strength, or `nil` when every
+    /// marker should be shown.
+    private func activeParagraph(in text: NSString, caretLocation: Int?) -> NSRange? {
+        guard configuration.syntaxVisibility == .currentLine, let caretLocation else { return nil }
+        return text.paragraphRange(for: NSRange(location: min(caretLocation, text.length), length: 0))
+    }
+
+    private func intersectsActive(_ range: NSRange, _ active: NSRange?) -> Bool {
+        guard let active else { return true }
+        // A caret sitting at the very start or end of a line still counts as
+        // being on it, so a zero-length intersection is not enough on its own.
+        return NSIntersectionRange(range, active).length > 0
+            || (range.location >= active.location && NSMaxRange(range) <= NSMaxRange(active))
+    }
+
+    /// Markers recede to a ghost of themselves away from the caret: the source
+    /// reads as the finished document, and nothing moves when they come back,
+    /// because they never stopped occupying their space.
+    private func syntaxColor(isActive: Bool) -> NSColor {
+        isActive ? EditorTheme.syntax : EditorTheme.fadedSyntax
     }
 
     // MARK: - Block level
@@ -96,7 +125,7 @@ final class MarkdownSyntaxHighlighter {
         paragraph.lineHeightMultiple = CGFloat(configuration.lineHeight)
         storage.addAttributes([
             .font: fonts.monospaced,
-            .foregroundColor: isFence ? EditorTheme.syntax : EditorTheme.codeText,
+            .foregroundColor: isFence ? EditorTheme.fadedSyntax : EditorTheme.codeText,
             .backgroundColor: EditorTheme.codeBackground,
             .paragraphStyle: paragraph
         ], range: range)
@@ -106,7 +135,8 @@ final class MarkdownSyntaxHighlighter {
                            text: NSString,
                            line: String,
                            lineRange: NSRange,
-                           enclosingRange: NSRange) {
+                           enclosingRange: NSRange,
+                           isActive: Bool) {
         let parsed = MarkdownLine.parse(line)
         let markerLength = max(0, line.utf16.count - parsed.content.utf16.count)
         let markerRange = NSRange(location: lineRange.location, length: markerLength)
@@ -132,11 +162,13 @@ final class MarkdownSyntaxHighlighter {
             storage.addAttribute(.font,
                                  value: fonts.heading(level: level, baseSize: CGFloat(configuration.fontSize)),
                                  range: lineRange)
-            storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: markerRange)
+            storage.addAttribute(.foregroundColor, value: syntaxColor(isActive: isActive), range: markerRange)
 
         case .quote:
             storage.addAttribute(.foregroundColor, value: EditorTheme.secondaryText, range: lineRange)
-            storage.addAttribute(.foregroundColor, value: EditorTheme.accent, range: markerRange)
+            storage.addAttribute(.foregroundColor,
+                                 value: isActive ? EditorTheme.accent : EditorTheme.fadedAccent,
+                                 range: markerRange)
 
         case .bullet, .ordered:
             storage.addAttribute(.foregroundColor, value: EditorTheme.accent, range: markerRange)
@@ -149,7 +181,7 @@ final class MarkdownSyntaxHighlighter {
 
         case .paragraph:
             if MarkdownParser.isThematicBreak(line) {
-                storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: lineRange)
+                storage.addAttribute(.foregroundColor, value: syntaxColor(isActive: isActive), range: lineRange)
             } else if line.trimmingCharacters(in: .whitespaces).hasPrefix("|") {
                 // Monospacing table source is what makes the columns line up
                 // while you are editing them.
@@ -173,7 +205,10 @@ final class MarkdownSyntaxHighlighter {
 
     // MARK: - Inline level
 
-    private func styleInlineSpans(_ storage: NSTextStorage, text: NSString, protectedRanges: [NSRange]) {
+    private func styleInlineSpans(_ storage: NSTextStorage,
+                                  text: NSString,
+                                  protectedRanges: [NSRange],
+                                  activeParagraph: NSRange?) {
         let source = storage.string
         let full = NSRange(location: 0, length: text.length)
         var claimed = protectedRanges
@@ -195,7 +230,10 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.link {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: match.range)
+                let isActive = self.intersectsActive(match.range, activeParagraph)
+                storage.addAttribute(.foregroundColor,
+                                     value: self.syntaxColor(isActive: isActive),
+                                     range: match.range)
                 let label = match.range(at: 2)
                 if label.location != NSNotFound, label.length > 0 {
                     storage.addAttribute(.foregroundColor, value: EditorTheme.text, range: label)
@@ -211,7 +249,9 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.autolink {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: match.range)
+                storage.addAttribute(.foregroundColor,
+                                     value: self.syntaxColor(isActive: self.intersectsActive(match.range, activeParagraph)),
+                                     range: match.range)
                 let target = match.range(at: 1)
                 if target.location != NSNotFound {
                     storage.addAttribute(.foregroundColor, value: EditorTheme.link, range: target)
@@ -223,7 +263,8 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.bold {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
+                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1,
+                                  isActive: self.intersectsActive(match.range, activeParagraph))
                 self.applyBold(storage, range: match.range(at: 2))
             }
         }
@@ -231,7 +272,8 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.italic {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
+                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1,
+                                  isActive: self.intersectsActive(match.range, activeParagraph))
                 self.applyItalic(storage, range: match.range(at: 2))
             }
         }
@@ -239,7 +281,8 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.strikethrough {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
+                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1,
+                                  isActive: self.intersectsActive(match.range, activeParagraph))
                 let content = match.range(at: 2)
                 if content.location != NSNotFound {
                     storage.addAttributes([
@@ -253,7 +296,8 @@ final class MarkdownSyntaxHighlighter {
         if let pattern = Self.highlight {
             pattern.enumerateMatches(in: source, range: full) { match, _, _ in
                 guard let match, !self.intersects(match.range, claimed) else { return }
-                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1)
+                self.styleMarkers(storage, match: match, contentGroup: 2, markerGroup: 1,
+                                  isActive: self.intersectsActive(match.range, activeParagraph))
                 let content = match.range(at: 2)
                 if content.location != NSNotFound {
                     storage.addAttribute(.backgroundColor, value: EditorTheme.highlightBackground, range: content)
@@ -270,14 +314,16 @@ final class MarkdownSyntaxHighlighter {
     private func styleMarkers(_ storage: NSTextStorage,
                               match: NSTextCheckingResult,
                               contentGroup: Int,
-                              markerGroup: Int) {
+                              markerGroup: Int,
+                              isActive: Bool) {
         let marker = match.range(at: markerGroup)
         let content = match.range(at: contentGroup)
         guard marker.location != NSNotFound, content.location != NSNotFound else { return }
-        storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: marker)
+        let color = syntaxColor(isActive: isActive)
+        storage.addAttribute(.foregroundColor, value: color, range: marker)
         let closing = NSRange(location: NSMaxRange(content), length: marker.length)
         if NSMaxRange(closing) <= storage.length {
-            storage.addAttribute(.foregroundColor, value: EditorTheme.syntax, range: closing)
+            storage.addAttribute(.foregroundColor, value: color, range: closing)
         }
     }
 

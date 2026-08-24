@@ -228,8 +228,7 @@ struct SourceEditor: NSViewRepresentable {
         func highlightNow() {
             highlightTask?.cancel()
             guard let textView, let storage = textView.textStorage else { return }
-            let focus = configuration.focusMode ? textView.selectedRange().location : nil
-            highlighter.highlight(storage, focusLocation: focus)
+            highlighter.highlight(storage, caretLocation: textView.selectedRange().location)
         }
 
         /// Coalesces bursts of typing into one highlighting pass.
@@ -261,7 +260,11 @@ struct SourceEditor: NSViewRepresentable {
         func textViewDidChangeSelection(_ notification: Notification) {
             guard !isSyncingFromDocument else { return }
             scheduleStateRefresh()
-            if configuration.focusMode { scheduleHighlight() }
+            // Moving the caret changes which paragraph shows its syntax, and
+            // which one Focus Mode leaves lit.
+            if configuration.focusMode || configuration.syntaxVisibility == .currentLine {
+                scheduleHighlight()
+            }
         }
 
         func textView(_ textView: NSTextView,

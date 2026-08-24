@@ -24,6 +24,7 @@ struct ContentView: View {
     @AppStorage(SettingsKey.lineHeight) private var lineHeight = SettingsDefault.lineHeight
     @AppStorage(SettingsKey.measure) private var measure = SettingsDefault.measure
     @AppStorage(SettingsKey.focusMode) private var focusMode = SettingsDefault.focusMode
+    @AppStorage(SettingsKey.syntaxVisibility) private var syntaxVisibility = SettingsDefault.syntaxVisibility
     @AppStorage(SettingsKey.smartLists) private var smartLists = SettingsDefault.smartLists
     @AppStorage(SettingsKey.wrapSelection) private var wrapSelection = SettingsDefault.wrapSelection
     @AppStorage(SettingsKey.smartLinkPaste) private var smartLinkPaste = SettingsDefault.smartLinkPaste
@@ -125,30 +126,36 @@ struct ContentView: View {
 
             if showStatusBar {
                 EditorStatusBar(statistics: statistics,
+                                path: DocumentOutline.path(to: controller.caretLine, in: outline),
                                 caretLine: controller.caretLine,
                                 caretColumn: controller.caretColumn,
-                                showsCaretPosition: mode != .preview)
+                                showsCaretPosition: mode != .preview) { item in
+                    reveal(line: item.line)
+                }
             }
         }
         .frame(minWidth: 480, minHeight: 360)
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 
     private var editorPane: some View {
-        SourceEditor(text: $document.text,
-                     configuration: editorConfiguration,
-                     controller: controller)
-            .overlay(alignment: .top) { placeholder }
-            .background(Color(nsColor: .textBackgroundColor))
+        PageSurface(measure: measure) {
+            SourceEditor(text: $document.text,
+                         configuration: editorConfiguration,
+                         controller: controller)
+                .overlay(alignment: .top) { placeholder }
+        }
     }
 
     private var previewPane: some View {
-        MarkdownPreview(blocks: blocks,
-                        typography: typography,
-                        measure: measure,
-                        scrollTarget: previewTarget) { line in
-            toggleTask(atLine: line)
+        PageSurface(measure: measure, margin: 32) {
+            MarkdownPreview(blocks: blocks,
+                            typography: typography,
+                            measure: measure,
+                            scrollTarget: previewTarget) { line in
+                toggleTask(atLine: line)
+            }
         }
-        .background(Color(nsColor: .textBackgroundColor))
     }
 
     /// Sits exactly where the first character will, at any line width.
@@ -178,6 +185,7 @@ struct ContentView: View {
                             lineHeight: lineHeight,
                             measure: measure,
                             focusMode: focusMode,
+                            syntaxVisibility: syntaxVisibility,
                             smartLists: smartLists,
                             wrapSelection: wrapSelection,
                             smartLinkPaste: smartLinkPaste,

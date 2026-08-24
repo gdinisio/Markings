@@ -28,6 +28,7 @@ struct EditingSettings: View {
     @AppStorage(SettingsKey.lineHeight) private var lineHeight = SettingsDefault.lineHeight
     @AppStorage(SettingsKey.measure) private var measure = SettingsDefault.measure
     @AppStorage(SettingsKey.focusMode) private var focusMode = SettingsDefault.focusMode
+    @AppStorage(SettingsKey.syntaxVisibility) private var syntaxVisibility = SettingsDefault.syntaxVisibility
     @AppStorage(SettingsKey.smartLists) private var smartLists = SettingsDefault.smartLists
     @AppStorage(SettingsKey.wrapSelection) private var wrapSelection = SettingsDefault.wrapSelection
     @AppStorage(SettingsKey.smartLinkPaste) private var smartLinkPaste = SettingsDefault.smartLinkPaste
@@ -65,6 +66,14 @@ struct EditingSettings: View {
                         Text(option.title).tag(option)
                     }
                 }
+                Picker("Show Markdown syntax", selection: $syntaxVisibility) {
+                    ForEach(SyntaxVisibility.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                Text("On the current line, the markers fade away everywhere else — so what you are writing reads as the finished document, and nothing moves when they come back.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
                 Toggle("Focus Mode", isOn: $focusMode)
                 Text("Focus Mode dims everything except the paragraph you are writing.")
                     .font(.callout)

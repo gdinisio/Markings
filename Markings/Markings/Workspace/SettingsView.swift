@@ -95,6 +95,7 @@ struct ReadingSettings: View {
     @AppStorage(SettingsKey.previewFontSize) private var fontSize = SettingsDefault.previewFontSize
     @AppStorage(SettingsKey.syncScrolling) private var syncScrolling = SettingsDefault.syncScrolling
     @AppStorage(SettingsKey.showStatusBar) private var showStatusBar = SettingsDefault.showStatusBar
+    @AppStorage(SettingsKey.showWelcomeAtLaunch) private var showWelcomeAtLaunch = SettingsDefault.showWelcomeAtLaunch
 
     var body: some View {
         Form {
@@ -125,6 +126,7 @@ struct ReadingSettings: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 Toggle("Show word count", isOn: $showStatusBar)
+                Toggle("Show the welcome window at launch", isOn: $showWelcomeAtLaunch)
             }
         }
         .formStyle(.grouped)

@@ -9,13 +9,24 @@ import Foundation
 import SwiftUI
 
 nonisolated enum WindowID {
+    static let welcome = "welcome"
     static let syntaxReference = "markdown-syntax"
 }
 
 @main
 struct MarkingsApp: App {
 
+    @NSApplicationDelegateAdaptor(MarkingsAppDelegate.self) private var appDelegate
+
     var body: some Scene {
+        Window("Welcome to Markings", id: WindowID.welcome) {
+            WelcomeWindow()
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        .defaultLaunchBehavior(.presented)
+
         DocumentGroup(newDocument: MarkingsDocument()) { file in
             ContentView(document: file.$document)
         }

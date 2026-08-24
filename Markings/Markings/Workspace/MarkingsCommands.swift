@@ -76,6 +76,11 @@ struct MarkingsCommands: Commands {
             textSizeCommands
         }
 
+        CommandGroup(before: .windowList) {
+            Button("Welcome to Markings") { openWindow(id: WindowID.welcome) }
+            Divider()
+        }
+
         CommandGroup(replacing: .help) {
             Button("Markdown Syntax") { openWindow(id: WindowID.syntaxReference) }
                 .keyboardShortcut("/", modifiers: [.command, .shift])

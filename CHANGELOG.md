@@ -5,6 +5,40 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.3 — A welcome window
+
+Markings now opens on a welcome window instead of an empty untitled document or
+a bare Open panel.
+
+- **Hero** — the app name set in the rounded system face over an accent-tinted
+  gradient under a material, so it picks up whatever accent colour is set in
+  System Settings and stays legible in either appearance. The mark is a page of
+  formatted text drawn in SwiftUI rather than shipped as an asset, and its lines
+  draw themselves in on appear — enough motion to feel alive, not enough to sit
+  through twice.
+- **Start** — New Document, New from Clipboard (which reports how many words are
+  waiting, and disables itself when there is nothing), and Open….
+- **Templates** — Meeting Notes, Read Me, Checklist and Article. All ordinary
+  Markdown; a blank page is faster than a page you have to delete first.
+- **Recent** — straight from `NSDocumentController`, with folder and modified
+  date, a Show in Finder contextual item, and Clear Recents. A file that has
+  moved since is dropped from the list rather than failing silently.
+- The footer checkbox switches the window off and **Window ▸ Welcome to
+  Markings** brings it back; it is also in Settings. With it off, the standard
+  launch behaviour returns, because an app that ignores that preference is worse
+  than one that never offered it.
+
+---
+
+## v1.2 — App icon
+
+- An Icon Composer `Markings.icon` is now part of the target, and the app has a
+  display name. The welcome window shows it rather than a drawn stand-in — the
+  real icon is the app's identity and is already better drawn than anything
+  assembled in code.
+
+---
+
 ## v1.1 — Fixed a toolbar that had collapsed into an overflow chevron
 
 The toolbar was showing nothing but a `»` at its trailing edge, and latterly

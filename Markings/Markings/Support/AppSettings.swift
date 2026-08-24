@@ -110,6 +110,7 @@ nonisolated enum SettingsKey {
     static let previewFontSize = "preview.fontSize"
     static let syncScrolling = "workspace.syncScrolling"
     static let showStatusBar = "workspace.showStatusBar"
+    static let showWelcomeAtLaunch = "welcome.showAtLaunch"
 }
 
 nonisolated enum SettingsDefault {
@@ -127,6 +128,7 @@ nonisolated enum SettingsDefault {
     static let previewFontSize = 16.0
     static let syncScrolling = true
     static let showStatusBar = true
+    static let showWelcomeAtLaunch = true
 }
 
 /// Everything the source editor needs to know about the user's preferences.

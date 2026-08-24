@@ -76,6 +76,20 @@ Three modes, switched from the toolbar or with `⌘1` / `⌘2` / `⌘3`:
 | **Split** | Source and reading view side by side, with the reading side following the caret |
 | **Preview** | The reading view on its own |
 
+### The welcome window
+
+Markings opens on a welcome window rather than an empty untitled document or a
+bare Open panel. It answers the three things you actually want at launch:
+
+- **Start** — a new document, one from the clipboard, or the Open panel
+- **Templates** — Meeting Notes, Read Me, Checklist, Article, all ordinary
+  Markdown with nothing to delete first
+- **Recent** — the documents you had, with folder and date, straight from
+  `NSDocumentController`
+
+The checkbox in its footer switches it off, and **Window ▸ Welcome to Markings**
+brings it back. With it switched off, the standard launch behaviour returns.
+
 ### The toolbar
 
 The toolbar is customisable exactly the way Finder's is, because it *is* that
@@ -308,12 +322,9 @@ continuation line must be indented to its item's content column.
 
 These are Xcode's to own, not the source tree's:
 
-1. **App icon.** `Assets.xcassets/AppIcon.appiconset` is still empty. Add an
-   icon in Xcode, or an Icon Composer `.icon` file, rather than dropping PNGs
-   into the catalog by hand.
-2. **Signing.** `DEVELOPMENT_TEAM` is already set and signing is automatic.
+1. **Signing.** `DEVELOPMENT_TEAM` is already set and signing is automatic.
    Check it in *Signing & Capabilities* before archiving.
-3. **Sandbox.** The app sandbox and user-selected file access are on via build
+2. **Sandbox.** The app sandbox and user-selected file access are on via build
    settings, so Xcode generates the entitlements. If image loading or anything
    else that needs the network is added later, the network client entitlement
    has to be turned on deliberately.

@@ -46,6 +46,7 @@ struct ContentView: View {
     @State private var statistics = DocumentStatistics()
     @State private var previewTarget: Int?
     @State private var exportRequested = false
+    @State private var goingToHeading = false
     @State private var isExporting = false
     @State private var exportDocument: HTMLExportDocument?
     @State private var exportFailure: String?
@@ -79,6 +80,12 @@ struct ContentView: View {
         .focusedSceneValue(\.workspaceMode, $mode)
         .focusedSceneValue(\.inspectorVisible, $showInspector)
         .focusedSceneValue(\.htmlExportRequested, $exportRequested)
+        .focusedSceneValue(\.goToHeadingRequested, $goingToHeading)
+        .sheet(isPresented: $goingToHeading) {
+            GoToHeadingSheet(items: outline) { item in
+                reveal(line: item.line)
+            }
+        }
         .task(id: document.text) {
             await reparse()
         }

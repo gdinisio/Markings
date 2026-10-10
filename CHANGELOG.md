@@ -5,6 +5,29 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.6 — Getting around a long document
+
+Scrolling is fine until a document outgrows it, and the outline sidebar costs a
+column of width to keep open.
+
+- **View ▸ Go to Heading…** (`⇧⌘O`) — a jump list: type a few letters, press
+  Return. `↑` `↓` choose, `esc` closes, and the keyboard hints are along the
+  bottom so none of that has to be guessed.
+- Matching is case- and accent-insensitive. A run of the typed letters ranks
+  above letters merely scattered in order, so "set" puts *Setup* above *Reset*,
+  while `gs` still finds *Getting started*.
+- Each result shows the section it sits under, so two headings with the same
+  name are told apart by something more useful than a line number.
+- The **outline sidebar now has a search field**, using the system's own
+  `searchable` field rather than a lookalike. It filters in document order
+  rather than by relevance, because an outline sorted by relevance is no longer
+  an outline — which is why the sidebar and the jump list use two different
+  entry points into the same matching.
+- Thirteen more assertions, covering ranking, subsequence matching, tie
+  stability and the order guarantee.
+
+---
+
 ## v1.5 — Tests for the logic layer
 
 About fifteen hundred lines of parser and editing logic had never been executed.

@@ -24,6 +24,7 @@ struct MarkingsCommands: Commands {
     @FocusedBinding(\.workspaceMode) private var mode: WorkspaceMode?
     @FocusedBinding(\.inspectorVisible) private var inspectorVisible: Bool?
     @FocusedBinding(\.htmlExportRequested) private var exportRequested: Bool?
+    @FocusedBinding(\.goToHeadingRequested) private var goToHeading: Bool?
 
     @AppStorage(SettingsKey.focusMode) private var focusMode = SettingsDefault.focusMode
     @AppStorage(SettingsKey.syntaxVisibility) private var syntaxVisibility = SettingsDefault.syntaxVisibility
@@ -69,6 +70,10 @@ struct MarkingsCommands: Commands {
         }
 
         CommandGroup(after: .toolbar) {
+            Divider()
+            Button("Go to Heading…") { goToHeading = true }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
+                .disabled(goToHeading == nil)
             Divider()
             viewModeCommands
             Divider()

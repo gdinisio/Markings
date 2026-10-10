@@ -14,24 +14,35 @@ struct OutlineSidebar: View {
     let currentLine: Int
     var onSelect: (OutlineItem) -> Void
 
+    @State private var filter = ""
+
     private var current: OutlineItem? {
         DocumentOutline.item(containing: currentLine, in: items)
+    }
+
+    /// Filtering keeps document order: an outline sorted by relevance is no
+    /// longer an outline.
+    private var visible: [OutlineItem] {
+        HeadingSearch.filter(filter, in: items)
     }
 
     var body: some View {
         Group {
             if items.isEmpty {
                 empty
+            } else if visible.isEmpty {
+                noMatches
             } else {
                 list
             }
         }
+        .searchable(text: $filter, placement: .sidebar, prompt: "Filter headings")
         .navigationTitle("Outline")
         .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 320)
     }
 
     private var list: some View {
-        List(items) { item in
+        List(visible) { item in
             Button {
                 onSelect(item)
             } label: {
@@ -56,6 +67,20 @@ struct OutlineSidebar: View {
             .help("Jump to \u{201C}\(item.title)\u{201D}")
         }
         .listStyle(.sidebar)
+    }
+
+    private var noMatches: some View {
+        VStack(spacing: 6) {
+            Text("No Matches")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+            Text("No heading contains \u{201C}\(filter)\u{201D}.")
+                .font(.callout)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var empty: some View {

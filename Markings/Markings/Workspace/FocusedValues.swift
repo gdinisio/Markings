@@ -24,6 +24,10 @@ struct ExportActionKey: FocusedValueKey {
     typealias Value = Binding<Bool>
 }
 
+struct GoToHeadingKey: FocusedValueKey {
+    typealias Value = Binding<Bool>
+}
+
 extension FocusedValues {
 
     var editorController: EditorController? {
@@ -44,5 +48,10 @@ extension FocusedValues {
     var htmlExportRequested: Binding<Bool>? {
         get { self[ExportActionKey.self] }
         set { self[ExportActionKey.self] = newValue }
+    }
+
+    var goToHeadingRequested: Binding<Bool>? {
+        get { self[GoToHeadingKey.self] }
+        set { self[GoToHeadingKey.self] = newValue }
     }
 }

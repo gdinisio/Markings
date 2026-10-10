@@ -95,6 +95,19 @@ room.
 Along the bottom, the heading path shows which section you are in — click any
 part of it to jump there — with the word count and reading time on the right.
 
+### Getting around a long document
+
+**View ▸ Go to Heading…** (`⇧⌘O`) opens a jump list: type a few letters, press
+Return. Matching is case- and accent-insensitive, a run of letters ranks above
+letters merely scattered in order (so `gs` still finds "Getting started"), and
+each result shows the section it sits under so two headings with the same name
+are told apart by something better than a line number. `↑` `↓` choose, `esc`
+closes.
+
+The outline sidebar has a search field of its own. It filters in **document
+order** rather than by relevance — an outline sorted by relevance is no longer
+an outline.
+
 ### The welcome window
 
 Markings opens on a welcome window rather than an empty untitled document or a
@@ -210,7 +223,7 @@ of syntax Markings understands alongside the shortcut that writes it.
 
 ### View
 
-`⌘1` Editor · `⌘2` Split · `⌘3` Preview · `⌃⌘S` Show/Hide Sidebar ·
+`⇧⌘O` Go to Heading · `⌘1` Editor · `⌘2` Split · `⌘3` Preview · `⌃⌘S` Show/Hide Sidebar ·
 `⌥⌘I` Show/Hide Document Info · `⇧⌘F` Focus Mode · `⌘+` / `⌘-` Text Size ·
 `⌘0` Actual Size
 
@@ -352,7 +365,7 @@ These are Xcode's to own, not the source tree's:
 
 ## Tests
 
-`Markings/MarkingsTests/` holds 229 assertions over the model layer — the
+`Markings/MarkingsTests/` holds 242 assertions over the model layer — the
 parser, the editing transforms, the outline, the statistics and both exporters.
 All of it is pure Foundation, so it runs without a window.
 

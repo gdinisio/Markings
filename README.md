@@ -350,6 +350,19 @@ These are Xcode's to own, not the source tree's:
 
 ---
 
+## Tests
+
+`Markings/MarkingsTests/` holds 229 assertions over the model layer — the
+parser, the editing transforms, the outline, the statistics and both exporters.
+All of it is pure Foundation, so it runs without a window.
+
+The folder sits beside `Markings/` rather than inside it, because the app target
+uses a file system synchronized group and a test file under `Markings/Markings/`
+would be compiled into the app. `MarkingsTests/README.md` has the one-time Xcode
+steps to add the target; after that it is `⌘U`.
+
+---
+
 ## Conventions
 
 Commits are labelled `vX.Y - "Details of this commit"`, each with a description

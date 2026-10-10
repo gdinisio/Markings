@@ -5,6 +5,35 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.5 — Tests for the logic layer
+
+About fifteen hundred lines of parser and editing logic had never been executed.
+This adds 229 assertions over it, in `Markings/MarkingsTests/`.
+
+- `MarkdownTransformsTests` checks the **resulting selection** on every command,
+  not only the resulting text. The selection is where the offset arithmetic
+  actually goes wrong, and a command that edits correctly but leaves the caret in
+  the wrong place is still broken.
+- `MarkdownParserTests` pins the **source line numbers** of every block, because
+  the preview's scroll sync and its task checkboxes both edit by line: a parser
+  that gets the structure right and the line numbers wrong ticks the wrong box.
+  It also asserts sibling blocks never share an identity, since the preview uses
+  those as view identities and scroll targets.
+- No-op cases are asserted to return `nil` rather than an identity edit — an
+  undo step that does nothing is worse than no command.
+- `MarkdownHTMLExporterTests` checks that document text can never become markup,
+  including a quote mark in a link target trying to break out of its attribute.
+- A robustness test feeds the parser every awkward input I could think of —
+  lone markers, unterminated fences, deeply buried items — to confirm it
+  terminates and returns something.
+
+The folder is a deliberate **sibling** of `Markings/`, not inside it: the app
+target uses a file system synchronized group, so a test file under
+`Markings/Markings/` would be compiled into the app, where `import Testing` does
+not build. Its README has the one-time Xcode steps to add the target.
+
+---
+
 ## v1.4 — One canvas, not two panes
 
 The window was a source pane and a preview pane with a divider between them,

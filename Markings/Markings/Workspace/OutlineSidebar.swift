@@ -27,7 +27,14 @@ struct OutlineSidebar: View {
     }
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            if !items.isEmpty {
+                filterField
+            }
+            // Deliberately not `.searchable`: on macOS that installs a toolbar
+            // item, and the document window's toolbar is customizable, which
+            // means every item in it has to have a customization entry. One
+            // that SwiftUI adds itself has none.
             if items.isEmpty {
                 empty
             } else if visible.isEmpty {
@@ -36,7 +43,6 @@ struct OutlineSidebar: View {
                 list
             }
         }
-        .searchable(text: $filter, placement: .sidebar, prompt: "Filter headings")
         .navigationTitle("Outline")
         .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 320)
     }
@@ -67,6 +73,35 @@ struct OutlineSidebar: View {
             .help("Jump to \u{201C}\(item.title)\u{201D}")
         }
         .listStyle(.sidebar)
+    }
+
+    private var filterField: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "magnifyingglass")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            TextField("Filter", text: $filter)
+                .textFieldStyle(.plain)
+                .font(.callout)
+            if !filter.isEmpty {
+                Button {
+                    filter = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Clear the filter")
+            }
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
+        .background(Color.primary.opacity(0.06),
+                    in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+        .padding(.horizontal, 10)
+        .padding(.top, 9)
+        .padding(.bottom, 3)
     }
 
     private var noMatches: some View {

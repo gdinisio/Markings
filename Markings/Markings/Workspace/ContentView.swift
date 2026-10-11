@@ -67,7 +67,6 @@ struct ContentView: View {
                                      mode: $mode,
                                      showInspector: $showInspector,
                                      focusMode: $focusMode,
-                                     exportRequested: $exportRequested,
                                      isEditing: mode != .preview)
                 }
         }

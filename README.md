@@ -104,7 +104,7 @@ each result shows the section it sits under so two headings with the same name
 are told apart by something better than a line number. `↑` `↓` choose, `esc`
 closes.
 
-The outline sidebar has a search field of its own. It filters in **document
+The outline sidebar has a filter field of its own. It filters in **document
 order** rather than by relevance — an outline sorted by relevance is no longer
 an outline.
 
@@ -132,16 +132,19 @@ and the icon/text display options come from macOS itself.
 Every control is its own item rather than a group sharing one slot, so you can
 take exactly what you want. Shown by default:
 
-> paragraph style · **B** · *I* · link · bulleted list · task list · Insert ·
+> paragraph style · **B** · *I* · link · Insert · bulleted list · task list ·
 > view mode · document info
 
 Every item is a button or a menu carrying a label, which is what gives it a name
 in the customisation sheet and a working entry in the overflow menu if the
-window is ever genuinely too narrow.
+window is ever genuinely too narrow. Nothing else in the window adds a toolbar
+item of its own, which is a constraint a customizable toolbar imposes: it
+reconciles every item against its customization set, and an item SwiftUI
+installs for itself has no entry to reconcile against.
 
 Waiting in the customisation sheet: strikethrough, inline code, highlight,
-numbered list, block quote, increase/decrease indent, link, image, table, code
-block, divider, Focus Mode and Export as HTML.
+numbered list, block quote and Focus Mode. Everything else lives in the menu
+bar, where it has a keyboard shortcut.
 
 Formatting controls dim in Preview rather than disappearing, so what is
 unavailable stays visible.

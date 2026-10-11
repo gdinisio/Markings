@@ -5,6 +5,36 @@ in the repository (`vX.Y - "Details of this commit"`).
 
 ---
 
+## v1.7 — Fixed a crash on launch
+
+v1.6 crashed on launch inside SwiftUI's toolbar code
+(`AppKitToolbarStrategy.applyItemCustomizations`). The crash report named the
+cause precisely: registers `x25`/`x24` held the small string `paragraphStyle`
+with its length in `x23`, and `x0` held **23** against the **22** items the
+toolbar declared.
+
+That extra item was the search field. `.searchable`, added to the outline
+sidebar in v1.6, installs a toolbar item on macOS. A **customizable** toolbar
+reconciles every item against its customization set — and an item SwiftUI
+installs for itself has no entry to reconcile against, so applying
+customizations trapped on the first item it reached.
+
+- The sidebar filter is now a plain field inside the sidebar's own content. Same
+  capability, and it does not touch the toolbar bridge. A comment at the site
+  records why, so it does not get "improved" back into `.searchable`.
+- The toolbar's identity is bumped to v3, discarding an arrangement that was
+  saved while the window was in a crashing state.
+- Item identifiers are namespaced (`markings.bold` rather than `bold`), because
+  they share a namespace with the identifiers AppKit and SwiftUI install.
+- The two remaining `Picker`s in toolbar items are now checkable menu items
+  built from `Toggle`. A `Picker` in a toolbar item had already caused the
+  overflow-menu failure in v1.1; there is no longer one anywhere in the toolbar.
+- Twenty-two items became fifteen. Image, table, code block and divider were
+  duplicated as individual items *and* inside the Insert menu; indent and export
+  have keyboard shortcuts. A shorter customisation sheet is a better one.
+
+---
+
 ## v1.6 — Getting around a long document
 
 Scrolling is fine until a document outgrows it, and the outline sidebar costs a
